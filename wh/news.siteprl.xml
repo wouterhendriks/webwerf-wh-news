@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<siteprofile xmlns="http://www.webhare.net/xmlns/publisher/siteprofile"
+             xmlns:p="http://www.webhare.net/xmlns/publisher/components"
+             xmlns:t="http://www.webhare.net/xmlns/tollium/screens"
+             >
+
+  <contenttype namespace="scope:webwerf-wh-news-folder">
+    <member name="addthis_add" type="boolean" />
+    <member name="addthis_js_code" type="string" />
+  </contenttype>
+
+  <tabsextension name="newsfolder" xmlns="http://www.webhare.net/xmlns/tollium/screens">
+    <newtab title="Nieuwsmap">
+      <heading composition="contentdata"
+               cellname="addthis_add"
+               checkbox="true"
+               enablecomponents="addthis_js_code"
+               title="Voeg AddThis toe"
+               />
+      <panel layout="left">
+        <textarea composition="contentdata"
+                  cellname="addthis_js_code"
+                  name="addthis_js_code"
+                  errorlabel="AddThis JavaScript URL"
+                  title=""
+                  width="1pr"
+                  placeholder="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-592d281ab96ac0a8"
+                  required="true"
+                  />
+      </panel>
+    </newtab>
+  </tabsextension>
+
+  <foldertype typedef="scope:webwerf-wh-news-folder"
+              title="Nieuws"
+              tolliumicon="tollium:folders/news"
+              protectindexfile="true"
+              >
+  </foldertype>
+
+  <apply>
+    <to type="folder" foldertype="scope:webwerf-wh-news-folder" />
+    <folderindex indexfile="newfile"
+                 newfiletype="http://www.webhare.net/xmlns/publisher/richdocumentfile"
+                 newfilename="nieuws.rtd"
+                 protectindexfile="true"
+                 />
+    <extendproperties extension=".newsfolder" contenttype="scope:webwerf-wh-news-folder" />
+  </apply>
+
+  <filetype typedef="scope:webwerf-wh-news-item"
+            title="Nieuwsbericht"
+            tolliumicon="tollium:files/application_x-webhare-richdocument"
+            blobiscontent="false"
+            needstemplate="true"
+            ispublishable="true"
+            requirescontent="false"
+            isacceptableindex="false"
+            ispublishedassubdir="true"
+            extensions=".rtd"
+            />
+
+  <contenttype namespace="scope:webwerf-wh-news-item">
+    <member name="image" type="file" />
+    <member name="date" type="datetime" />
+    <member name="summary" type="string" />
+    <member name="allow" type="boolean" />
+  </contenttype>
+
+  <tabsextension name="newsitem" xmlns="http://www.webhare.net/xmlns/tollium/screens">
+    <newtab title="Nieuwsbericht">
+      <heading title="Samenvatting (introductietekst in overzicht)" />
+      <textarea composition="contentdata" cellname="summary" width="1pr" height="5x" required="true" title="" errorlabel="Samenvatting" placeholder="Samenvatting van het nieuwsbericht voor in het overzicht" />
+      <hr />
+
+      <heading title="Nieuwsdatum" />
+      <text title="" value="Voor de datum wordt de aanmaakdatum van het bestand gebruikt. Deze datum is hieronder optioneel te overschrijven." wordwrap="true" />
+      <datetime composition="contentdata" cellname="date" type="date" title="" errorlabel="Overschrijf datum" />
+      <hr />
+
+      <heading title="Afbeelding (minimaal 600x250)" />
+      <panel layout="left">
+        <imgedit composition="contentdata"
+                 cellname="image"
+                 title=""
+                 width="200px"
+                 height="200px"
+                 preserveifunchanged="true"
+                 allowedactions="all refpoint"
+                 errorlabel="Afbeelding"
+                 publisher="false"
+                 required="true"
+                 imagesetwidth="600px"
+                 imagesetheight="250px"
+                 />
+      </panel>
+    </newtab>
+  </tabsextension>
+
+  <apply priority="10">
+    <to type="all" parenttype="scope:webwerf-wh-news-folder" />
+    <denyfiletype typedef="*" />
+    <denyfoldertype typedef="*" />
+    <allowfiletype typedef="scope:webwerf-wh-news-item" />
+    <bodyrenderer library="news.whlib" objectname="newspage" />
+  </apply>
+
+  <apply>
+    <to type="file" filetype="scope:webwerf-wh-news-item" />
+    <extendproperties extension=".newsitem" contenttype="scope:webwerf-wh-news-item" />
+    <setobjecteditor name="publisher:editdocument" />
+  </apply>
+
+  <tabsextension name="sysoponly" xmlns="http://www.webhare.net/xmlns/tollium/screens">
+    <newtab title="Sysop only">
+      <checkbox composition="contentdata" cellname="allow" title="allow" />
+    </newtab>
+  </tabsextension>
+
+  <apply>
+    <to type="file" filetype="scope:webwerf-wh-news-item" />
+    <extendproperties extension=".sysoponly" contenttype="scope:webwerf-wh-news-item" requireright="system:sysop" />
+  </apply>
+
+  <tabsextension name="contenttest" xmlns="http://www.webhare.net/xmlns/tollium/screens">
+    <newtab title="Content test">
+
+    </newtab>
+  </tabsextension>
+
+  <apply>
+    <and>
+      <to type="file" filetype="scope:webwerf-wh-news-item" />
+      <testdata target="self"
+                typedef="scope:webwerf-wh-news-item"
+                member="allow"
+                value="true"
+                />
+    </and>
+    <extendproperties extension=".contenttest" contenttype="scope:webwerf-wh-news-item" />
+  </apply>
+
+
+</siteprofile>

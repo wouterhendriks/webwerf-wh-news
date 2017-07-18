@@ -1,0 +1,13 @@
+{
+  "name": "webwerf-wh-news",
+  "version": "0.1.0",
+  "main": "src/index.es",
+  "author": "wouter@webwerf.nl",
+  "license": "MIT",
+  "dependencies": {
+    "list.js": "^1.3.0"
+  },
+  "webhare": {
+    "scopedsiteprofile": "wh/news.siteprl.xml"
+  }
+}

@@ -1,0 +1,77 @@
+[component index]
+  <div class="news">
+    <div class="wh-rtd news__rtd">
+      [rtd]
+    </div>
+    <div id="newslist" class="news__items-list" style="display:none"> [! Will be shown after init !]
+      [embed pagenav]
+      <ul class="list news__items">
+        [forevery news]
+          <li class="news__item-li">
+            <section class="news__item">
+              <div class="news__image-container">
+                <a class="news__image-link" href="[link]">
+                  <img class="news__image" data-src="[resized_image.link]" />
+                </a>
+              </div>
+              <div class="news__info">
+                <h2 class="news__heading">
+                  <a class="news__heading-link" href="[link]">
+                    [title]
+                  </a>
+                </h2>
+                <div class="news__date">
+                  [gettid site.added_on] [date_formatted]
+                </div>
+                <div class="news__summary">
+                  [summary]
+                </div>
+                <div class="news__readmore-container">
+                  <a class="news__readmore-link" href="[link]">
+                    [gettid site.read_more]
+                  </a>
+                </div>
+              </div>
+            </section>
+          </li>
+        [/forevery]
+      </ul>
+    </div>
+  </div>
+[/component]
+
+[component details]
+  <div class="newsdetails">
+    <div class="newsdetails__image">
+      <img src="[resized_image.link]" alt="[newstitle]" />
+    </div>
+    <div class="newsdetails__date">
+      [gettid site.added_on] [date_formatted]
+    </div>
+    <div class="wh-rtd newsdetails__rtd">
+      [rtd]
+    </div>
+    [if add_addthis]
+      <div class="newsdetails__addthis">
+        <div class="addthis_inline_share_toolbox"></div>
+      </div>
+    [/if]
+    <div class="newsdetails__back">
+      <a class="newsdetails__back-link" href="[backlink]">
+        [gettid site.back_to_overview]
+      </a>
+    </div>
+  </div>
+[/component]
+
+[component pagenav]
+  <div class="pagenav">
+    <a href="#" class="pagenav__link pagenav__link--prev disabled">
+      [gettid site.previous]
+    </a>
+    <ul class="pagenav__pages"></ul>
+    <a href="#" class="pagenav__link pagenav__link--next">
+      [gettid site.next]
+    </a>
+  </div>
+[/component]

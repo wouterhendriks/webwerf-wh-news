@@ -1,0 +1,104 @@
+<?wh
+LOADLIB "wh::datetime.whlib";
+LOADLIB "wh::witty.whlib";
+LOADLIB "module::publisher/webdesign.whlib";
+LOADLIB "module::system/cache.whlib";
+LOADLIB "module::system/database.whlib";
+LOADLIB "module::system/whfs.whlib";
+
+PUBLIC OBJECTTYPE NewsPage EXTEND StaticPageBase
+<
+  PUBLIC OBJECT webdesign;
+  PUBLIC RECORD wittydata;
+  PUBLIC BOOLEAN isindex;
+
+  OBJECT newsitemtype;
+  OBJECT newsfoldertype;
+
+  STRING ns_scope;
+
+  UPDATE PUBLIC MACRO PrepareForRendering(OBJECT webdesign)
+  {
+    INSERT "page-webwerf-wh-news" INTO webdesign->htmlclasses AT END;
+
+    this->webdesign := webdesign;
+    this->isindex := webdesign->targetfolder->indexdoc = webdesign->targetobject->id;
+
+    // extract the scope from the folder type namespace
+    this->ns_scope := Left(webdesign->targetfolder->typens, SearchLastSubstring(webdesign->targetfolder->typens, "webwerf-wh-news-folder"));
+
+    this->newsitemtype := OpenWHFSType(`${this->ns_scope}webwerf-wh-news-item`);
+    this->newsfoldertype := OpenWHFSType(webdesign->targetfolder->typens);
+
+    IF (this->isindex)
+      this->PrepareForIndex();
+    ELSE
+      this->PrepareForDetails();
+  }
+
+  MACRO PrepareForIndex()
+  {
+    RECORD ARRAY news :=
+         SELECT id
+              , title
+              , creationdate
+              , link := indexurl
+           FROM system.fs_objects
+          WHERE parent = this->webdesign->targetfolder->id
+                AND type = this->newsitemtype->id
+                AND title != ""
+                AND indexurl != ""
+       ORDER BY ordering, ToUpperCase(title), id;
+
+    news :=
+        SELECT *
+             , resized_image := WrapCachedImage(image, [ method := "fill", setwidth := 300, setheight := 125, format := "image/jpeg" ])
+             , date_formatted := FormatDateTime("%d-%m-%Y", date ?? creationdate, this->webdesign->languagecode)
+          FROM this->newsitemtype->EnrichWithBulkData(news, [ "image","date","summary" ]);
+
+    this->wittydata := [ news := news
+                       , rtd := PTR this->webdesign->OpenRTDFromFile(this->webdesign->targetobject)->RenderAllObjects()
+                       ];
+  }
+
+  MACRO PrepareForDetails()
+  {
+    RECORD newsfolderdata := this->newsfoldertype->GetInstanceData(this->webdesign->targetfolder->id);
+    RECORD newsitemdata := this->newsitemtype->GetInstanceData(this->webdesign->targetobject->id);
+
+    STRING addthis_js_code := newsfolderdata.addthis_add ? newsfolderdata.addthis_js_code : "";
+    IF (addthis_js_code != "")
+      this->webdesign->InsertWithCallback(PTR this->AddAddThis(addthis_js_code), "body-bottom");
+
+    this->wittydata := [ date_formatted := FormatDateTime("%d-%m-%Y", newsitemdata.date ?? this->webdesign->targetobject->creationdate, "nl")
+                       , rtd := PTR this->webdesign->OpenRTDFromFile(this->webdesign->targetobject)->RenderAllObjects()
+                       , backlink := this->webdesign->targetfolder->indexurl
+                       , newstitle := this->webdesign->targetobject->title
+                       , resized_image := WrapCachedImage(newsitemdata.image, [ method := "fit", setheight := 300, format := "image/jpeg" ])
+                       , add_addthis := addthis_js_code != ""
+                       ];
+  }
+
+  MACRO AddAddThis(STRING jscode)
+  {
+    IF (SearchSubString(jscode, "<script") > -1)
+    {
+      this->webdesign->AddPublicationWarning("De AddThis code in ongeldig omdat er '<script' in voorkomt.");
+      RETURN;
+    }
+
+    IF (SearchSubString(jscode, "addthis.com") = -1)
+    {
+      this->webdesign->AddPublicationWarning("De AddThis code in ongeldig omdat er geen 'addthis.com' in voorkomt.");
+      RETURN;
+    }
+
+    Print(`<script type="text/javascript" src="${jscode}"></script>`);
+  }
+
+  UPDATE PUBLIC MACRO RunBody(OBJECT webdesign)
+  {
+    OBJECT wittylib := LoadWittyLibrary(this->pagefolder || "news.witty", "HTML-NI");
+    wittylib->RunComponent(this->isindex ? "index" : "details", this->wittydata);
+  }
+>;
