@@ -2,6 +2,12 @@
 
 ## Install
 
+Install with NPM:
+
+```
+npm install git://github.com/wouterhendriks/webwerf-wh-news.git
+```
+
 Load the package in your site profile:
 
 ```
