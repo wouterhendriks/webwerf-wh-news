@@ -10,13 +10,14 @@
   </contenttype>
 
   <tabsextension name="newsfolder" xmlns="http://www.webhare.net/xmlns/tollium/screens">
-    <newtab title="Nieuwsmap">
+    <newtab title="Nieuwsmap (alleen voor systeembeheerders)">
       <heading composition="contentdata"
                cellname="addthis_add"
                checkbox="true"
                enablecomponents="addthis_js_code"
                title="Voeg AddThis toe"
                />
+
       <panel layout="left">
         <textarea composition="contentdata"
                   cellname="addthis_js_code"
@@ -24,7 +25,7 @@
                   errorlabel="AddThis JavaScript URL"
                   title=""
                   width="1pr"
-                  placeholder="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-592d281ab96ac0a8"
+                  placeholder="Vul hier de AddThis JavaScript URL in, deze lijkt op //s7.addthis.com/js/300/addthis_widget.js#pubid=ra-592d281ab96ac0a8."
                   required="true"
                   />
       </panel>
@@ -45,7 +46,7 @@
                  newfilename="nieuws.rtd"
                  protectindexfile="true"
                  />
-    <extendproperties extension=".newsfolder" contenttype="scope:webwerf-wh-news-folder" />
+    <extendproperties extension=".newsfolder" contenttype="scope:webwerf-wh-news-folder" requireright="system:sysop" />
   </apply>
 
   <filetype typedef="scope:webwerf-wh-news-item"
@@ -111,6 +112,7 @@
     <setobjecteditor name="publisher:editdocument" />
   </apply>
 
+  <!--
   <tabsextension name="sysoponly" xmlns="http://www.webhare.net/xmlns/tollium/screens">
     <newtab title="Sysop only">
       <checkbox composition="contentdata" cellname="allow" title="allow" />
@@ -139,6 +141,6 @@
     </and>
     <extendproperties extension=".contenttest" contenttype="scope:webwerf-wh-news-item" />
   </apply>
-
+  -->
 
 </siteprofile>
